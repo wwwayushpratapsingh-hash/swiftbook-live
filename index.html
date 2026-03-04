@@ -1,99 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SWIFTBOOK PREMIUM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWIFTBOOK | LOGIN</title>
     <style>
-        :root { --gold: #ffb400; --bg: #06080a; --card: #15191d; --blue: #72bbef; --pink: #faa9ba; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        /* Navigation */
-        .nav { background: #111; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        .logo { color: var(--gold); font-size: 24px; font-weight: 900; letter-spacing: 1px; }
-        .pts { background: #222; padding: 6px 15px; border-radius: 20px; font-size: 14px; border: 1px solid #333; }
-        
-        /* Match Card */
-        .match-card { background: var(--card); margin: 12px; border-radius: 12px; border: 1px solid #262d35; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .m-header { padding: 12px; font-weight: bold; background: linear-gradient(90deg, #1e252d, #15191d); display: flex; justify-content: space-between; border-bottom: 1px solid #000; font-size: 14px; }
-        .live-dot { color: #0f0; font-size: 10px; animation: blink 1s infinite; }
-        
-        /* Odds Grid */
-        .odds-row { display: grid; grid-template-columns: 1fr 75px 75px; border-bottom: 1px solid #111; height: 55px; }
-        .team-name { padding: 15px 12px; font-size: 13px; font-weight: 600; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .btn { display: flex; align-items: center; justify-content: center; font-weight: 900; border-left: 1px solid #000; cursor: pointer; font-size: 17px; }
-        .back { background: var(--blue); color: #000; }
-        .lay { background: var(--pink); color: #000; }
-        
-        /* Session Section */
-        .fancy { background: #0b0e11; padding: 12px; border-top: 1px solid #333; }
-        .fancy-title { font-size: 11px; color: var(--gold); font-weight: bold; margin-bottom: 8px; text-transform: uppercase; }
-        .fancy-row { display: grid; grid-template-columns: 1fr 65px 65px; background: #1a1a1a; border-radius: 6px; overflow: hidden; border: 1px solid #333; }
-        .f-label { padding: 10px; font-size: 12px; color: #ccc; }
-        .f-btn { display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 16px; }
-
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        :root { --gold: #ffb400; --bg: #06080a; --card: #15191d; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; }
+        #login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        .login-box { background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid var(--gold); width: 80%; max-width: 350px; text-align: center; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; background: #222; color: white; }
+        .btn-login { background: var(--gold); color: black; padding: 12px; width: 95%; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        #main-site { display: none; }
+        .nav { background: #111; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; }
+        .match-card { background: var(--card); margin: 12px; border-radius: 10px; border: 1px solid #222; }
+        .odds-row { display: grid; grid-template-columns: 1fr 70px 70px; border-bottom: 1px solid #111; }
+        .back { background: #72bbef; color: black; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .lay { background: #faa9ba; color: black; display: flex; align-items: center; justify-content: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="nav">
-        <div class="logo">SWIFTBOOK</div>
-        <div class="pts">Pts: <span id="balance" style="color:var(--gold)">5,000</span></div>
-    </div>
-
-    <div id="live-matches">
-        <div style="text-align:center; padding:100px; color:#444;">
-            <p>🔄 Connecting to Live Engine...</p>
+    <div id="login-page">
+        <div class="login-box">
+            <h2 style="color:var(--gold)">SWIFTBOOK</h2>
+            <input type="text" id="username" placeholder="ID Name">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn-login" onclick="checkLogin()">LOGIN</button>
+            <p style="font-size: 12px; color: #666; margin-top: 15px;">Contact Admin for ID</p>
         </div>
     </div>
 
+    <div id="main-site">
+        <div class="nav">
+            <div style="color:var(--gold); font-weight:900;">SWIFTBOOK LIVE</div>
+            <div id="user-display">Pts: 0</div>
+        </div>
+        <div id="live-matches"></div>
+    </div>
+
     <script>
-        async function updateLive() {
-            try {
-                // Ye hamare backend /api/getMatches se data lega
-                const res = await fetch('/api/getMatches'); 
-                const data = await res.json();
-                
-                let html = "";
-                data.forEach(m => {
-                    const p = m.split('|');
-                    if(p[11]) { // Match Name check
-                        html += `
-                        <div class="match-card">
-                            <div class="m-header">
-                                <span>🏏 ${p[11]}</span>
-                                <span class="live-dot">● LIVE</span>
-                            </div>
-                            <div class="odds-row">
-                                <div class="team-name">TEAM 1</div>
-                                <div class="btn back">${p[1] || '--'}</div>
-                                <div class="btn lay">${p[3] || '--'}</div>
-                            </div>
-                            <div class="odds-row">
-                                <div class="team-name">TEAM 2</div>
-                                <div class="btn back">${p[5] || '--'}</div>
-                                <div class="btn lay">${p[7] || '--'}</div>
-                            </div>
-                            <div class="fancy">
-                                <div class="fancy-title">Session / Lambi</div>
-                                <div class="fancy-row">
-                                    <div class="f-label">Over Runs</div>
-                                    <div class="f-btn" style="background:var(--pink)">${p[35] || '--'}</div>
-                                    <div class="f-btn" style="background:#28a745; color:white;">${p[36] || '--'}</div>
-                                </div>
-                            </div>
-                        </div>`;
-                    }
-                });
-                document.getElementById('live-matches').innerHTML = html || '<p style="text-align:center; padding:50px;">No Live Matches Currently</p>';
-            } catch (e) { 
-                console.log("Syncing..."); 
+        function checkLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            
+            // Abhi ke liye humne ek default ID banayi hai testing ke liye
+            if(u === "test77" && p === "12345") {
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('main-site').style.display = 'block';
+                document.getElementById('user-display').innerText = "User: " + u + " | Pts: 5000";
+                startRates();
+            } else {
+                alert("Galat ID ya Password! Admin se sampark karein.");
             }
         }
 
-        setInterval(updateLive, 2000);
-        updateLive();
+        async function startRates() {
+            setInterval(async () => {
+                try {
+                    const res = await fetch('/api/getMatches');
+                    const data = await res.json();
+                    let html = "";
+                    data.forEach(m => {
+                        const p = m.split('|');
+                        if(p[11]) {
+                            html += `<div class="match-card">
+                                <div style="padding:10px; font-weight:bold;">🏏 ${p[11]}</div>
+                                <div class="odds-row"><div style="padding:10px;">Match Odds</div><div class="back">${p[1]||'--'}</div><div class="lay">${p[3]||'--'}</div></div>
+                            </div>`;
+                        }
+                    });
+                    document.getElementById('live-matches').innerHTML = html;
+                } catch (e) { console.log("Re-syncing..."); }
+            }, 2000);
+        }
     </script>
 </body>
-  </html>
+</html>
