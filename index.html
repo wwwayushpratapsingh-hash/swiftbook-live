@@ -1,1 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swiftbook - Premium Cricket Exchange</title>
+<style>
+:root { --main:#001529; --gold:#ffcc00; --back:#72bbef; --lay:#faa9ba; --bg:#f5f7f9; }
+body{background:var(--bg);font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:0;overflow-x:hidden;}
+#login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#001529;display:flex;align-items:center;justify-content:center;z-index:20000;}
+.login-box{background:white;width:90%;max-width:350px;padding:30px;border-radius:10px;text-align:center;border-top:4px solid #ffcc00;}
+.login-box input{width:100%;padding:10px;margin-top:10px;border:1px solid #ddd;border-radius:5px;}
+.login-btn{width:100%;margin-top:15px;padding:12px;background:#001529;color:white;border:none;border-radius:5px;font-weight:bold;}
+.demo-btn{width:100%;margin-top:10px;padding:12px;background:#ffcc00;color:#001529;border:none;border-radius:5px;font-weight:bold;}
+.header{background:var(--main);color:white;padding:10px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000;border-bottom:2px solid var(--gold);}
+.logo-section{display:flex;align-items:center;gap:10px;font-weight:bold;color:var(--gold);cursor:pointer;}
+.wallet-container{display:flex;gap:10px;}
+.w-box{background:rgba(255,255,255,0.1);border:1px solid var(--gold);padding:4px 10px;border-radius:5px;text-align:center;min-width:80px;cursor:pointer;}
+.w-label{font-size:9px;text-transform:uppercase;color:#ccc;display:block;}
+.w-val{font-size:13px;font-weight:bold;color:var(--gold);}
+.exp-val{color:#ff4d4d !important;}
+.sidebar{position:fixed;left:-100%;top:0;width:280px;height:100%;background:white;z-index:9999;transition:.3s;box-shadow:10px 0 20px rgba(0,0,0,.5);}
+.sidebar.active{left:0!important}
+.side-head{background:var(--main);color:white;padding:30px 15px;border-bottom:3px solid var(--gold);}
+.side-item{padding:15px;border-bottom:1px solid #eee;font-weight:bold;color:#333;cursor:pointer;display:flex;justify-content:space-between;}
+.overlay{position:fixed;display:none;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9000;}
+.exp-modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;width:90%;max-width:350px;z-index:10001;border-radius:10px;padding:15px;box-shadow:0 0 20px rgba(0,0,0,.5);}
+.exp-head{font-weight:bold;border-bottom:1px solid #ddd;padding-bottom:10px;margin-bottom:10px;display:flex;justify-content:space-between;}
+.match-card{background:white;margin:2px 0;padding:15px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border-left:4px solid var(--gold);}
+.scoreboard-area{background:#002344;color:white;padding:20px;text-align:center;}
+.score-val{font-size:32px;font-weight:bold;color:var(--gold);margin:10px 0;}
+.market-header{background:#444;color:white;padding:8px 15px;font-size:12px;font-weight:bold;display:flex;justify-content:space-between;margin-top:5px;}
+.market-row{background:white;display:flex;align-items:center;padding:10px 15px;border-bottom:1px solid #eee;}
+.o-btn{width:50px;height:40px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;border:1px solid #ddd;margin-left:5px;}
+.back{background:var(--back);color:#004a99;}
+.lay{background:var(--lay);color:#a02010;}
+#slip{display:none;position:fixed;bottom:0;width:100%;background:white;z-index:10000;padding:20px;border-radius:20px 20px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.5);box-sizing:border-box;}
+.stk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0;}
+.stk-btn{padding:12px;background:#eee;border-radius:8px;text-align:center;font-weight:bold;cursor:pointer;}
+.hidden{display:none;}
+.view-screen{background:white;min-height:100vh;padding:20px;position:absolute;width:100%;top:50px;left:0;box-sizing:border-box;z-index:500;}
+table{width:100%;border-collapse:collapse;margin-top:15px;font-size:12px;}
+th,td{border:1px solid #ddd;padding:12px;text-align:left;}
+</style>
+</head>
+<body>
 
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+<div class="login-box">
+<h2 style="color:#001529;">SWIFTBOOK</h2>
+<p style="font-size:12px;color:#777;">Premium Cricket Exchange</p>
+<input id="uid" type="text" placeholder="User ID">
+<input id="pass" type="password" placeholder="Password">
+<button class="login-btn" onclick="loginUser()">LOGIN</button>
+<button class="demo-btn" onclick="demoLogin()">LOGIN WITH DEMO</button>
+</div>
+</div>
+
+<div id="overlay" class="overlay" onclick="closePopups()"></div>
+
+<div class="header">
+<div class="logo-section" onclick="openSidebar()">
+<span style="font-size:24px;">☰</span>
+<span>SWIFTBOOK</span>
+</div>
+
+<div class="wallet-container">
+<div class="w-box" onclick="switchView('statement')">
+<span class="w-label">Wallet</span>
+<span class="w-val" id="top-pts">0.00</span>
+</div>
+<div class="w-box" onclick="openExposure()">
+<span class="w-label">Exposure</span>
+<span class="w-val exp-val" id="top-exp">0.00</span>
+</div>
+</div>
+</div>
+
+<div id="exp-modal" class="exp-modal">
+<div class="exp-head">
+<span>Active Bets</span>
+<span onclick="closePopups()" style="color:red;cursor:pointer;">X</span>
+</div>
+<div id="exp-list">
+<p style="text-align:center;color:#999;">No active exposure.</p>
+</div>
+</div>
+
+<div id="sidebar" class="sidebar">
+<div class="side-head">
+<div style="font-size:20px;font-weight:bold;">Swift User</div>
+<div style="font-size:12px;color:var(--gold);">ID: SB99281</div>
+</div>
+<div class="side-item" onclick="switchView('home')">Home 🏠</div>
+<div class="side-item" onclick="switchView('statement')">Account Statement 📄</div>
+<div class="side-item" onclick="switchView('history')">Bet History 📜</div>
+<div class="side-item" style="color:red;margin-top:30px;" onclick="location.reload()">Logout 🚪</div>
+</div>
+
+<div id="home-view">
+<div style="background:#ccc;padding:10px;font-size:12px;font-weight:bold;">LIVE MATCHES</div>
+<div id="live-match-list"></div>
+</div>
+
+<div id="slip">
+<div style="display:flex;justify-content:space-between;font-weight:bold;">
+<span id="s-name">Team</span>
+<span onclick="closePopups()" style="color:red;cursor:pointer;">×</span>
+</div>
+<div style="margin:15px 0;">
+Price: <b id="s-odds">0.00</b> | Stake:
+<input type="number" id="s-amt" style="width:100px;" value="0">
+</div>
+<div class="stk-grid">
+<div class="stk-btn" onclick="setStk(100)">100</div>
+<div class="stk-btn" onclick="setStk(500)">500</div>
+<div class="stk-btn" onclick="setStk(1000)">1k</div>
+<div class="stk-btn" onclick="setStk(5000)">5k</div>
+</div>
+<button onclick="confirmBet()" style="width:100%;padding:15px;background:var(--main);color:white;border:none;border-radius:10px;font-weight:bold;">
+PLACE BET
+</button>
+</div>
+
+<script src="admin.js"></script>
+<script>
+let currentUser = null;
+let activeBets = [];
+
+function loginUser(){
+    const id = document.getElementById("uid").value;
+    const pass = document.getElementById("pass").value;
+    if(id==="swift" && pass==="1234"){
+        document.getElementById("login-screen").style.display="none";
+        currentUser = {id, points:0, bets:[]};
+        loadLiveMatches();
+    }else alert("Invalid Login");
+}
+
+function demoLogin(){
+    document.getElementById("login-screen").style.display="none";
+    currentUser = {id:"demo", points:0, bets:[]};
+    loadLiveMatches();
+}
+
+function loadLiveMatches(){
+    // Placeholder: API key se live match fetch
+    const matches = [
+        {name:"🇮🇳 INDIA vs 🇵🇰 PAKISTAN", odd:1.85},
+        {name:"🇦🇺 AUS vs 🇳🇿 NZ", odd:2.1}
+    ];
+    const container = document.getElementById("live-match-list");
+    container.innerHTML = "";
+    matches.forEach(m=>{
+        const div = document.createElement("div");
+        div.className="match-card";
+        div.innerHTML=`<div><b>${m.name}</b><br><small style="color:green">● LIVE</small></div><div style="color:#aaa">❯</div>`;
+        div.onclick = ()=>openSlip(m.name, m.odd);
+        container.appendChild(div);
+    });
+}
+
+function openSlip(name, odd){
+    document.getElementById("slip").style.display="block";
+    document.getElementById("s-name").innerText=name;
+    document.getElementById("s-odds").innerText=odd;
+}
+
+function closePopups(){
+    document.getElementById("slip").style.display="none";
+}
+function setStk(val){document.getElementById("s-amt").value=val;}
+function confirmBet(){
+    const stake=parseInt(document.getElementById("s-amt").value);
+    const name=document.getElementById("s-name").innerText;
+    const odd=parseFloat(document.getElementById("s-odds").innerText);
+    if(stake>0 && currentUser){
+        currentUser.bets.push({name, stake, odd});
+        alert(`Bet placed: ${name} - ${stake} points`);
+        closePopups();
+    }
+}
+</script>
+</body>
+  </html>
