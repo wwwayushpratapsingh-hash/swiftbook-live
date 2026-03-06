@@ -53,7 +53,6 @@ th,td{border:1px solid #ddd;padding:12px;text-align:left;}
 <input id="uid" type="text" placeholder="User ID">
 <input id="pass" type="password" placeholder="Password">
 <button class="login-btn" onclick="loginUser()">LOGIN</button>
-<button class="demo-btn" onclick="demoLogin()">LOGIN WITH DEMO</button>
 </div>
 </div>
 
@@ -64,7 +63,6 @@ th,td{border:1px solid #ddd;padding:12px;text-align:left;}
 <span style="font-size:24px;">☰</span>
 <span>SWIFTBOOK</span>
 </div>
-
 <div class="wallet-container">
 <div class="w-box" onclick="switchView('statement')">
 <span class="w-label">Wallet</span>
@@ -90,7 +88,7 @@ th,td{border:1px solid #ddd;padding:12px;text-align:left;}
 <div id="sidebar" class="sidebar">
 <div class="side-head">
 <div style="font-size:20px;font-weight:bold;">Swift User</div>
-<div style="font-size:12px;color:var(--gold);">ID: SB99281</div>
+<div style="font-size:12px;color:var(--gold);">ID: SBXXXX</div>
 </div>
 <div class="side-item" onclick="switchView('home')">Home 🏠</div>
 <div class="side-item" onclick="switchView('statement')">Account Statement 📄</div>
@@ -128,37 +126,23 @@ PLACE BET
 let currentUser = null;
 let activeBets = [];
 
+// LOGIN
 function loginUser(){
     const id = document.getElementById("uid").value;
     const pass = document.getElementById("pass").value;
     if(id==="swift" && pass==="1234"){
         document.getElementById("login-screen").style.display="none";
         currentUser = {id, points:0, bets:[]};
-        loadLiveMatches();
+        fetchLiveMatches();
     }else alert("Invalid Login");
 }
 
-function demoLogin(){
-    document.getElementById("login-screen").style.display="none";
-    currentUser = {id:"demo", points:0, bets:[]};
-    loadLiveMatches();
-}
-
-function loadLiveMatches(){
-    // Placeholder: API key se live match fetch
-    const matches = [
-        {name:"🇮🇳 INDIA vs 🇵🇰 PAKISTAN", odd:1.85},
-        {name:"🇦🇺 AUS vs 🇳🇿 NZ", odd:2.1}
-    ];
+function fetchLiveMatches(){
+    // Abhi placeholder, backend API call ke liye
+    // API key ke through live match fetch karna
     const container = document.getElementById("live-match-list");
-    container.innerHTML = "";
-    matches.forEach(m=>{
-        const div = document.createElement("div");
-        div.className="match-card";
-        div.innerHTML=`<div><b>${m.name}</b><br><small style="color:green">● LIVE</small></div><div style="color:#aaa">❯</div>`;
-        div.onclick = ()=>openSlip(m.name, m.odd);
-        container.appendChild(div);
-    });
+    container.innerHTML = "<p style='text-align:center;color:#999;'>Loading live matches...</p>";
+    // Backend call se yeh replace hoga
 }
 
 function openSlip(name, odd){
@@ -183,4 +167,4 @@ function confirmBet(){
 }
 </script>
 </body>
-  </html>
+    </html>
