@@ -2,113 +2,88 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SWIFTBOOK PREMIUM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiftbook - Live Only</title>
     <style>
-        :root { --gold: #ffb400; --bg: #06080a; --card: #15191d; --blue: #72bbef; --pink: #faa9ba; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; }
+        :root { --navy: #0a192f; --gold: #ffd700; --card: #112240; }
+        body { background: var(--navy); color: white; font-family: sans-serif; margin: 0; }
+        .header { background: var(--card); padding: 20px; text-align: center; border-bottom: 2px solid var(--gold); }
         
-        /* Login Section */
-        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
-        .login-box { background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid var(--gold); width: 85%; max-width: 350px; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #333; background: #222; color: white; outline: none; }
-        .login-btn { width: 95%; padding: 12px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; border-radius: 5px; font-size: 16px; }
+        /* Login Form */
+        #login-screen { padding: 50px 20px; text-align: center; }
+        input { width: 80%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; background: #1d2d44; color: white; }
+        .btn-login { background: var(--gold); color: black; padding: 15px 50px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 85%; font-size: 16px; }
 
-        /* Main Site (Hidden initially) */
-        #main-site { display: none; }
-        .nav { background: #111; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .logo { color: var(--gold); font-size: 22px; font-weight: 900; }
+        /* Match UI */
+        #match-screen { display: none; padding: 15px; }
+        .match-card { background: var(--card); border-radius: 15px; padding: 20px; margin-bottom: 20px; border-left: 5px solid var(--gold); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .live-label { color: #00ff00; font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        .live-dot { height: 8px; width: 8px; background: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         
-        /* Match Cards */
-        .match-card { background: var(--card); margin: 12px; border-radius: 10px; border: 1px solid #262d35; overflow: hidden; }
-        .m-header { padding: 10px; background: #1e252d; display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; border-bottom: 1px solid #000; }
-        .odds-row { display: grid; grid-template-columns: 1fr 75px 75px; height: 50px; border-bottom: 1px solid #111; }
-        .team-name { padding: 15px 10px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .btn { display: flex; align-items: center; justify-content: center; font-weight: bold; border-left: 1px solid #000; font-size: 16px; }
-        .back { background: var(--blue); color: #000; }
-        .lay { background: var(--pink); color: #000; }
+        .score-display { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; color: #64ffda; font-size: 18px; text-align: center; margin: 15px 0; font-weight: bold; border: 1px solid #1d2d44; }
+        .btn-box { display: flex; gap: 10px; }
+        .bet-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; color: white; }
         
-        .status-msg { text-align: center; padding: 50px; color: #555; font-size: 14px; }
+        .loading { text-align: center; color: #8892b0; margin-top: 100px; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <div class="login-box">
-            <h1 style="color:var(--gold); margin-bottom:20px;">SWIFTBOOK</h1>
-            <input type="text" id="user" placeholder="Username">
-            <input type="password" id="pass" placeholder="Password">
-            <button class="login-btn" onclick="doLogin()">LOGIN</button>
-            <p style="font-size:11px; color:#777; margin-top:15px;">Official Premium Exchange</p>
-        </div>
+        <div class="header" style="margin-bottom: 30px; border-radius: 0 0 20px 20px;"><h1>SWIFTBOOK</h1></div>
+        <input type="text" id="u" placeholder="Username">
+        <input type="password" id="p" placeholder="Password">
+        <button class="btn-login" onclick="checkLogin()">SECURE LOGIN</button>
     </div>
 
-    <div id="main-site">
-        <div class="nav">
-            <div class="logo">SWIFTBOOK</div>
-            <div style="font-size:12px;">Pts: <span id="user-pts" style="color:var(--gold)">5,000</span></div>
-        </div>
-        <div id="live-container">
-            <div class="status-msg">Searching for Live Matches...</div>
+    <div id="match-screen">
+        <div class="header" style="margin-bottom: 20px; border-radius: 15px;"><h1>LIVE MATCHES</h1></div>
+        <div id="display">
+            <div class="loading">Searching for Live Cricket...</div>
         </div>
     </div>
 
     <script>
-        // Login Logic
-        function doLogin() {
-            const u = document.getElementById('user').value;
-            const p = document.getElementById('pass').value;
-            // Default ID for Testing
-            if(u === "test77" && p === "12345") {
+        function checkLogin() {
+            const user = document.getElementById('u').value;
+            const pass = document.getElementById('p').value;
+            if(user === "demo" && pass === "1234") {
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-site').style.display = 'block';
-                fetchMatches();
-                setInterval(fetchMatches, 3000); // 3 sec refresh
-            } else {
-                alert("Invalid Login!");
-            }
+                document.getElementById('match-screen').style.display = 'block';
+                fetchLive();
+            } else { alert("Access Denied!"); }
         }
 
-        // Live Rates Logic
-        async function fetchMatches() {
+        async function fetchLive() {
+            const display = document.getElementById('display');
             try {
-                // Engine check
-                const response = await fetch('/api/getMatches');
-                const data = await response.json();
-                
-                if(!data || data.length === 0) {
-                    document.getElementById('live-container').innerHTML = '<div class="status-msg">No Live Matches Right Now.</div>';
+                const res = await fetch('/api/getMatches');
+                const matches = await res.json();
+
+                if (!matches || matches.length === 0) {
+                    display.innerHTML = '<div class="loading">No Matches are currently LIVE. Check back later.</div>';
                     return;
                 }
 
-                let html = "";
-                data.forEach(match => {
-                    const p = match.split('|');
-                    if(p[11]) { // Match Name exists
-                        html += `
+                display.innerHTML = '';
+                matches.forEach(m => {
+                    display.innerHTML += `
                         <div class="match-card">
-                            <div class="m-header">
-                                <span>🏏 ${p[11]}</span>
-                                <span style="color:#0f0">● LIVE</span>
-                            </div>
-                            <div class="odds-row">
-                                <div class="team-name">TEAM 1</div>
-                                <div class="btn back">${p[1] || '--'}</div>
-                                <div class="btn lay">${p[3] || '--'}</div>
-                            </div>
-                            <div class="odds-row">
-                                <div class="team-name">TEAM 2</div>
-                                <div class="btn back">${p[5] || '--'}</div>
-                                <div class="btn lay">${p[7] || '--'}</div>
+                            <div class="live-label"><span class="live-dot"></span> \${m.status}</div>
+                            <h3>\${m.name}</h3>
+                            <div class="score-display">\${m.score}</div>
+                            <div class="btn-box">
+                                <button class="bet-btn" style="background: #2ea44f;">BACK</button>
+                                <button class="bet-btn" style="background: #da3633;">LAY</button>
                             </div>
                         </div>`;
-                    }
                 });
-                document.getElementById('live-container').innerHTML = html;
-            } catch (error) {
-                console.log("Engine Syncing...");
+            } catch (err) {
+                display.innerHTML = '<div class="loading">Connection Error. Please Refresh.</div>';
             }
         }
+        setInterval(fetchLive, 30000); // 30 sec auto-refresh
     </script>
 </body>
-    </html>
+</html>
